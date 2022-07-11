@@ -5,10 +5,8 @@ using System;
 
 public class Parser {
 	public const int _EOF = 0;
-	public const int _ident = 1;
-	public const int _number = 2;
-	public const int _string = 3;
-	public const int maxT = 12;
+	public const int _number = 1;
+	public const int maxT = 4;
 
 	const bool _T = true;
 	const bool _x = false;
@@ -80,71 +78,28 @@ public class Parser {
 	}
 
 	
-	void FooLang() {
-		expr();
-	}
-
-	void expr() {
-		equ();
-	}
-
-	void equ() {
-		add();
-		while (la.kind == 7) {
+	void Sample() {
+		int n; 
+		while (la.kind == 2) {
 			Get();
-			add();
+			Expr(out n);
+			Console.WriteLine(n); 
 		}
 	}
 
-	void method() {
+	void Expr(out int n) {
+		int n1; 
+		Term(out n);
+		while (la.kind == 3) {
+			Get();
+			Term(out n1);
+			n = n + n1; 
+		}
+	}
+
+	void Term(out int n) {
 		Expect(1);
-		Expect(4);
-		if (StartOf(1)) {
-			expr();
-			while (la.kind == 5) {
-				Get();
-				expr();
-			}
-		}
-		Expect(6);
-	}
-
-	void add() {
-		mul();
-		while (la.kind == 8 || la.kind == 9) {
-			if (la.kind == 8) {
-				Get();
-			} else {
-				Get();
-			}
-			mul();
-		}
-	}
-
-	void mul() {
-		atom();
-		while (la.kind == 10 || la.kind == 11) {
-			if (la.kind == 10) {
-				Get();
-			} else {
-				Get();
-			}
-			atom();
-		}
-	}
-
-	void atom() {
-		if (la.kind == 2) {
-			Get();
-		} else if (la.kind == 3) {
-			Get();
-		} else if (la.kind == 1) {
-			method();
-		} else if (la.kind == 4) {
-			Get();
-			expr();
-			Expect(6);
-		} else SynErr(13);
+		n = Convert.Int32(t.val); 
 	}
 
 
@@ -153,14 +108,13 @@ public class Parser {
 		la = new Token();
 		la.val = "";		
 		Get();
-		FooLang();
+		Sample();
 		Expect(0);
 
 	}
 	
 	static readonly bool[,] set = {
-		{_T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x},
-		{_x,_T,_T,_T, _T,_x,_x,_x, _x,_x,_x,_x, _x,_x}
+		{_T,_x,_x,_x, _x,_x}
 
 	};
 } // end Parser
@@ -175,19 +129,10 @@ public class Errors {
 		string s;
 		switch (n) {
 			case 0: s = "EOF expected"; break;
-			case 1: s = "ident expected"; break;
-			case 2: s = "number expected"; break;
-			case 3: s = "string expected"; break;
-			case 4: s = "\"(\" expected"; break;
-			case 5: s = "\",\" expected"; break;
-			case 6: s = "\")\" expected"; break;
-			case 7: s = "\"==\" expected"; break;
-			case 8: s = "\"+\" expected"; break;
-			case 9: s = "\"-\" expected"; break;
-			case 10: s = "\"*\" expected"; break;
-			case 11: s = "\"/\" expected"; break;
-			case 12: s = "??? expected"; break;
-			case 13: s = "invalid atom"; break;
+			case 1: s = "number expected"; break;
+			case 2: s = "\"calc\" expected"; break;
+			case 3: s = "\"+\" expected"; break;
+			case 4: s = "??? expected"; break;
 
 			default: s = "error " + n; break;
 		}

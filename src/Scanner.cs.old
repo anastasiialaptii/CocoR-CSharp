@@ -203,8 +203,8 @@ public class UTF8Buffer: Buffer {
 public class Scanner {
 	const char EOL = '\n';
 	const int eofSym = 0; /* pdt */
-	const int maxT = 12;
-	const int noSym = 12;
+	const int maxT = 4;
+	const int noSym = 4;
 
 
 	public Buffer buffer; // scanner buffer
@@ -226,17 +226,9 @@ public class Scanner {
 	
 	static Scanner() {
 		start = new Dictionary<int, int>(128);
-		for (int i = 97; i <= 122; ++i) start[i] = 1;
-		for (int i = 48; i <= 57; ++i) start[i] = 2;
-		start[34] = 3; 
-		start[40] = 5; 
-		start[44] = 6; 
-		start[41] = 7; 
-		start[61] = 8; 
-		start[43] = 10; 
-		start[45] = 11; 
-		start[42] = 12; 
-		start[47] = 13; 
+		for (int i = 48; i <= 57; ++i) start[i] = 1;
+		start[99] = 2; 
+		start[43] = 6; 
 		start[Buffer.EOF] = -1;
 
 	}
@@ -309,7 +301,7 @@ public class Scanner {
 
 	Token NextToken() {
 		while (ch == ' ' ||
-			false
+			ch == 10 || ch == 13
 		) NextCh();
 
 		int recKind = noSym;
@@ -331,37 +323,21 @@ public class Scanner {
 			} // NextCh already done
 			case 1:
 				recEnd = pos; recKind = 1;
-				if (ch >= 'a' && ch <= 'z') {AddCh(); goto case 1;}
+				if (ch >= '0' && ch <= '9') {AddCh(); goto case 1;}
 				else {t.kind = 1; break;}
 			case 2:
-				recEnd = pos; recKind = 2;
-				if (ch >= '0' && ch <= '9') {AddCh(); goto case 2;}
-				else {t.kind = 2; break;}
+				if (ch == 'a') {AddCh(); goto case 3;}
+				else {goto case 0;}
 			case 3:
-				if (ch <= '!' || ch >= '#' && ch <= 65535) {AddCh(); goto case 3;}
-				else if (ch == '"') {AddCh(); goto case 4;}
+				if (ch == 'l') {AddCh(); goto case 4;}
 				else {goto case 0;}
 			case 4:
-				{t.kind = 3; break;}
-			case 5:
-				{t.kind = 4; break;}
-			case 6:
-				{t.kind = 5; break;}
-			case 7:
-				{t.kind = 6; break;}
-			case 8:
-				if (ch == '=') {AddCh(); goto case 9;}
+				if (ch == 'c') {AddCh(); goto case 5;}
 				else {goto case 0;}
-			case 9:
-				{t.kind = 7; break;}
-			case 10:
-				{t.kind = 8; break;}
-			case 11:
-				{t.kind = 9; break;}
-			case 12:
-				{t.kind = 10; break;}
-			case 13:
-				{t.kind = 11; break;}
+			case 5:
+				{t.kind = 2; break;}
+			case 6:
+				{t.kind = 3; break;}
 
 		}
 		t.val = new String(tval, 0, tlen);
